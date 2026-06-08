@@ -56,12 +56,12 @@ export function SignUpForm() {
   };
 
   return (
-    <div className="w-full max-w-md p-8 bg-card/80 backdrop-blur-md border border-border rounded-2xl shadow-xl">
+    <div className="w-full max-w-md p-8 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl shadow-xl text-slate-100">
       <div className="flex flex-col items-center mb-6">
-        <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
+        <h2 className="text-3xl font-extrabold tracking-tight text-white">
           Create Account
         </h2>
-        <p className="text-sm text-text-muted mt-2">
+        <p className="text-sm text-slate-400 mt-2">
           Get started with the Library Management System
         </p>
       </div>
@@ -75,16 +75,16 @@ export function SignUpForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold mb-1 text-foreground">
+          <label className="block text-sm font-semibold mb-1 text-slate-300">
             Full Name
           </label>
           <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="text"
               {...register('name')}
               placeholder="John Doe"
-              className="w-full pl-10 pr-4 py-2 border border-border bg-background/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2 border border-slate-800 bg-slate-950/50 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-500"
             />
           </div>
           {errors.name && (
@@ -93,16 +93,16 @@ export function SignUpForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-1 text-foreground">
+          <label className="block text-sm font-semibold mb-1 text-slate-300">
             Email Address
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="email"
               {...register('email')}
               placeholder="you@example.com"
-              className="w-full pl-10 pr-4 py-2 border border-border bg-background/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2 border border-slate-800 bg-slate-950/50 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-500"
             />
           </div>
           {errors.email && (
@@ -111,16 +111,16 @@ export function SignUpForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-1 text-foreground">
+          <label className="block text-sm font-semibold mb-1 text-slate-300">
             Password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="password"
               {...register('password')}
               placeholder="••••••••"
-              className="w-full pl-10 pr-4 py-2 border border-border bg-background/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2 border border-slate-800 bg-slate-950/50 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-500"
             />
           </div>
           {errors.password && (
@@ -131,16 +131,16 @@ export function SignUpForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-1 text-foreground">
+          <label className="block text-sm font-semibold mb-1 text-slate-300">
             Confirm Password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="password"
               {...register('confirmPassword')}
               placeholder="••••••••"
-              className="w-full pl-10 pr-4 py-2 border border-border bg-background/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2 border border-slate-800 bg-slate-950/50 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-500"
             />
           </div>
           {errors.confirmPassword && (
@@ -166,11 +166,11 @@ export function SignUpForm() {
         </button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-text-muted">
+      <div className="mt-6 text-center text-sm text-slate-400">
         Already have an account?{' '}
         <Link
           href="/login"
-          className="text-primary hover:underline font-semibold transition-all"
+          className="text-blue-400 hover:text-blue-300 font-semibold transition-all"
         >
           Sign in
         </Link>
