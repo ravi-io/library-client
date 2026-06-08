@@ -3,24 +3,23 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { MOCK_BOOKS } from '@/constants/books';
 import {
   Search,
-  BookOpen,
-  LogOut,
-  LayoutDashboard,
   Heart,
   Bookmark,
   Lock,
   X,
-  Check,
   Star,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Navbar } from '@/components/layout/Navbar';
+import { toast } from 'sonner';
 
 export default function Home() {
-  const router = useRouter();
   const { data: session } = authClient.useSession();
 
   // States
@@ -32,7 +31,6 @@ export default function Home() {
   const [modalAction, setModalAction] = useState<
     'wishlist' | 'reserve' | 'general'
   >('general');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Categories list
   const categories = ['All', 'Technology', 'Literature', 'Science', 'Business'];
@@ -49,25 +47,6 @@ export default function Home() {
     });
   }, [searchQuery, selectedCategory]);
 
-  // Show temporary toast message
-  const triggerToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 4000);
-  };
-
-  // Sign out handler
-  const handleSignOut = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          triggerToast('Signed out successfully');
-          router.refresh();
-        },
-      },
-    });
-  };
 
   // Wishlist handler
   const handleWishlist = (bookId: string, bookTitle: string) => {
@@ -80,10 +59,10 @@ export default function Home() {
     setWishlist((prev) => {
       const exists = prev.includes(bookId);
       if (exists) {
-        triggerToast(`Removed "${bookTitle}" from your wishlist`);
+        toast.info(`Removed "${bookTitle}" from your wishlist`);
         return prev.filter((id) => id !== bookId);
       } else {
-        triggerToast(`Added "${bookTitle}" to your wishlist!`);
+        toast.success(`Added "${bookTitle}" to your wishlist!`);
         return [...prev, bookId];
       }
     });
@@ -102,7 +81,7 @@ export default function Home() {
     }
 
     if (status === 'Borrowed') {
-      triggerToast(
+      toast.error(
         `"${bookTitle}" is currently borrowed. You will be notified when it returns.`
       );
       return;
@@ -111,10 +90,10 @@ export default function Home() {
     setReservedBooks((prev) => {
       const exists = prev.includes(bookId);
       if (exists) {
-        triggerToast(`Cancelled reservation for "${bookTitle}"`);
+        toast.info(`Cancelled reservation for "${bookTitle}"`);
         return prev.filter((id) => id !== bookId);
       } else {
-        triggerToast(
+        toast.success(
           `Successfully reserved "${bookTitle}"! You can pick it up within 24 hours.`
         );
         return [...prev, bookId];
@@ -124,105 +103,22 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-primary selection:text-white">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-3 bg-slate-900 border border-emerald-500/30 text-emerald-400 rounded-xl shadow-xl shadow-black/50 animate-bounce duration-500">
-          <Check className="w-5 h-5 shrink-0" />
-          <span className="text-sm font-medium">{toastMessage}</span>
-        </div>
-      )}
-
       {/* Navigation Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-900 bg-slate-950/80 backdrop-blur-md">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-              <BookOpen className="w-5 h-5 text-primary-light" />
-            </div>
-            <span className="text-lg font-bold bg-linear-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
-              BeaconLibrary
-            </span>
-          </div>
+      <Navbar wishlistCount={wishlist.length} />
 
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-400">
-            <a href="#browse" className="hover:text-white transition-colors">
-              Browse Books
-            </a>
-            <a href="#featured" className="hover:text-white transition-colors">
-              Popular Reads
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            {session ? (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/books"
-                  className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 hover:text-white transition-all font-medium"
-                >
-                  <LayoutDashboard className="w-3.5 h-3.5" />
-                  Dashboard
-                </Link>
-
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-900/60 rounded-lg border border-slate-900 text-xs text-slate-300">
-                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary-light font-bold">
-                    {session.user.name?.charAt(0) || 'U'}
-                  </div>
-                  <span className="hidden md:inline font-semibold">
-                    {session.user.name}
-                  </span>
-                  {wishlist.length > 0 && (
-                    <span className="flex items-center gap-1 ml-2 text-rose-400 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded-full text-[10px]">
-                      <Heart className="w-2.5 h-2.5 fill-rose-400" />
-                      {wishlist.length}
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  onClick={handleSignOut}
-                  className="p-2 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 text-slate-400 hover:text-red-400 rounded-lg transition-all cursor-pointer"
-                  title="Sign Out"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Browse Only
-                </div>
-                <Link
-                  href="/login"
-                  className="px-4 py-1.5 text-sm hover:bg-slate-900 rounded-lg text-slate-300 hover:text-white transition-all font-medium"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/signup"
-                  className="px-4 py-1.5 text-sm bg-primary hover:bg-primary-dark text-primary-foreground rounded-lg transition-all font-semibold shadow-lg shadow-primary/10 hover:shadow-primary/20"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 md:py-28 flex flex-col items-center justify-center text-center px-4 overflow-hidden border-b border-slate-900">
+      <section className="relative py-20 md:py-28 flex flex-col items-center justify-center text-center px-4 overflow-hidden">
         {/* Background Image with dark overlay */}
-        <div className="absolute inset-0 z-0 bg-slate-950">
+        <div className="absolute inset-0 z-0 bg-black">
           <Image
             src="/library_bg.png"
             alt="Library Hero background"
             fill
             priority
-            className="object-cover opacity-20"
+            className="object-cover opacity-25"
           />
-          <div className="absolute inset-0 bg-linear-to-b from-slate-950/10 via-slate-950/80 to-slate-950" />
+          <div className="absolute inset-0 bg-linear-to-b from-black/10 via-black/85 to-slate-950" />
         </div>
 
         <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
@@ -242,10 +138,7 @@ export default function Home() {
           </h1>
 
           <p className="text-slate-400 text-lg md:text-xl mb-10 max-w-xl leading-relaxed">
-            Search, preview, and request books from our collection.{' '}
-            {session
-              ? 'Manage your borrows from the dashboard.'
-              : 'Sign in to access reservations and wishlists.'}
+            Search, preview, and request books from our collection. Manage your borrows from the dashboard.
           </p>
 
           {/* Real-time Search Box */}
@@ -262,12 +155,14 @@ export default function Home() {
               className="w-full pl-12 pr-4 py-3.5 bg-slate-900/90 backdrop-blur border border-slate-800 rounded-2xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-xl shadow-black/40"
             />
             {searchQuery && (
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-4 p-1 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer"
+                className="absolute right-4 p-1 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer w-7 h-7"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -289,17 +184,19 @@ export default function Home() {
           {/* Category Tabs */}
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
-              <button
+              <Button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                variant={selectedCategory === cat ? 'default' : 'outline'}
+                size="sm"
+                className={`rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   selectedCategory === cat
                     ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/15'
                     : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
                 }`}
               >
                 {cat}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -352,18 +249,20 @@ export default function Home() {
                   </span>
 
                   {/* Wishlist Floating Button */}
-                  <button
+                  <Button
                     onClick={() => handleWishlist(book.id, book.title)}
-                    className={`absolute top-3 right-3 p-2 rounded-full border backdrop-blur-md transition-all cursor-pointer ${
+                    variant="ghost"
+                    size="icon"
+                    className={`absolute top-3 right-3 p-2 rounded-full border backdrop-blur-md transition-all cursor-pointer w-8 h-8 ${
                       isWishlisted
-                        ? 'bg-rose-500/10 border-rose-500/20 text-rose-500'
-                        : 'bg-black/60 border-white/5 text-slate-400 hover:text-rose-400'
+                        ? 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20'
+                        : 'bg-black/60 border-white/5 text-slate-400 hover:text-rose-400 hover:bg-black/80'
                     }`}
                   >
                     <Heart
                       className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-rose-500' : ''}`}
                     />
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Content */}
@@ -371,13 +270,13 @@ export default function Home() {
                   {/* Availability Badge */}
                   <div className="mb-2">
                     {book.status === 'Available' ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      <Badge variant="outline" className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/10 px-2 py-0.5 rounded-full">
                         Available
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                      <Badge variant="outline" className="text-[10px] font-bold text-amber-500 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/10 px-2 py-0.5 rounded-full">
                         Borrowed
-                      </span>
+                      </Badge>
                     )}
                   </div>
 
@@ -398,12 +297,12 @@ export default function Home() {
 
                   {/* Actions */}
                   <div className="pt-4 border-t border-slate-900/60 mt-auto flex items-center justify-between gap-2">
-                    <button
+                    <Button
                       onClick={() =>
                         handleReserve(book.id, book.title, book.status)
                       }
                       disabled={book.status === 'Borrowed' && !isReserved}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer h-9 ${
                         isReserved
                           ? 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30'
                           : book.status === 'Borrowed'
@@ -413,7 +312,7 @@ export default function Home() {
                     >
                       {isReserved ? (
                         <>
-                          <Bookmark className="w-3.5 h-3.5 fill-emerald-400" />
+                          <Bookmark className="w-3.5 h-3.5 fill-emerald-400 mr-1" />
                           Reserved
                         </>
                       ) : book.status === 'Borrowed' ? (
@@ -421,7 +320,7 @@ export default function Home() {
                       ) : (
                         'Reserve Book'
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -453,60 +352,62 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Authentic Glassmorphism Login Required Modal */}
-      {showAuthModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/85 backdrop-blur-sm animate-fade-in">
-          <div
-            className="w-full max-w-md p-8 bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-3xl shadow-2xl animate-scale-up"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-start mb-6">
-              <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20 text-amber-500">
-                <Lock className="w-5 h-5" />
-              </div>
-              <button
-                onClick={() => setShowAuthModal(false)}
-                className="p-1.5 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+      {/* Shadcn Dialog for Login Required Modal */}
+      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+        <DialogContent className="max-w-md bg-slate-900/90 backdrop-blur-md border border-slate-800 text-slate-100 p-8 rounded-3xl" showCloseButton={false}>
+          <div className="flex justify-between items-start mb-6">
+            <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20 text-amber-500">
+              <Lock className="w-5 h-5" />
             </div>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => setShowAuthModal(false)}
+              className="p-1.5 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
 
-            <h3 className="text-xl font-bold text-white mb-2">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-xl font-bold text-white">
               Authentication Required
-            </h3>
-
-            <p className="text-slate-400 text-sm leading-relaxed mb-6">
+            </DialogTitle>
+            <DialogDescription className="text-slate-400 text-sm leading-relaxed">
               {modalAction === 'wishlist'
                 ? 'Adding books to your personal wishlist requires an account. Log in or create an account to start curating your reads.'
                 : 'Reserving books for quick counter pickup requires an authenticated account. Join us to start borrow records.'}
-            </p>
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/login"
-                onClick={() => setShowAuthModal(false)}
-                className="w-full py-2.5 px-4 bg-primary text-primary-foreground hover:bg-primary-dark font-bold rounded-xl shadow-lg shadow-primary/25 text-center transition-all duration-200"
-              >
+          <div className="flex flex-col gap-3 mt-6">
+            <Button
+              asChild
+              className="w-full py-2.5 bg-primary text-primary-foreground hover:bg-primary-dark font-bold rounded-xl shadow-lg shadow-primary/25 text-center transition-all duration-200"
+            >
+              <Link href="/login" onClick={() => setShowAuthModal(false)}>
                 Sign In to Account
               </Link>
-              <Link
-                href="/signup"
-                onClick={() => setShowAuthModal(false)}
-                className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold rounded-xl text-center transition-all duration-200"
-              >
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200 font-bold rounded-xl text-center transition-all duration-200"
+            >
+              <Link href="/signup" onClick={() => setShowAuthModal(false)}>
                 Register New Account
               </Link>
-              <button
-                onClick={() => setShowAuthModal(false)}
-                className="w-full py-2.5 text-xs text-slate-500 hover:text-slate-300 font-medium transition-all cursor-pointer"
-              >
-                Maybe Later
-              </button>
-            </div>
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setShowAuthModal(false)}
+              className="w-full py-2.5 text-xs text-slate-500 hover:text-slate-300 font-medium transition-all cursor-pointer"
+            >
+              Maybe Later
+            </Button>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

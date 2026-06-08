@@ -29,7 +29,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${sansFont.variable} ${serifFont.variable} h-full antialiased`}
+      className={`${sansFont.variable} ${serifFont.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
