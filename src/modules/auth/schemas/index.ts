@@ -51,3 +51,20 @@ export const signUpSchema = z
   });
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, 'Password must be at least 6 characters')
+      .refine((val) => !val.toLowerCase().includes('<script>'), {
+        message: 'Password cannot contain script tags',
+      }),
+    confirmPassword: z.string().min(6, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

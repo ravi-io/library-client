@@ -1,9 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useSignUpForm } from '../hooks/useSignUpForm';
-import { SocialAuthButtons } from './SocialAuthButtons';
-import { User, Mail, Lock, Loader2, ShieldAlert } from 'lucide-react';
+import { useResetPasswordForm } from '../hooks/useResetPasswordForm';
+import { Lock, Loader2, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import {
   Card,
@@ -16,18 +15,18 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-export function SignUpForm() {
-  const { register, handleSubmit, errors, isValid, error, isLoading, handleSocialSignIn } =
-    useSignUpForm();
+export function ResetPasswordForm() {
+  const { register, handleSubmit, errors, isValid, error, isLoading } =
+    useResetPasswordForm();
 
   return (
     <Card className="w-full max-w-[380px] bg-slate-950/40 backdrop-blur-xl border border-slate-800/80 shadow-2xl rounded-2xl p-6 sm:p-7 gap-0">
       <CardHeader className="flex flex-col items-center space-y-1 p-0 pb-5">
         <CardTitle className="text-xl font-bold tracking-tight text-white">
-          Create Account
+          Reset Password
         </CardTitle>
-        <CardDescription className="text-xs text-slate-400">
-          Get started with the Library Management System
+        <CardDescription className="text-xs text-slate-400 text-center">
+          Enter a new password below to update your account access
         </CardDescription>
       </CardHeader>
 
@@ -42,58 +41,10 @@ export function SignUpForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label
-              htmlFor="name"
-              className="text-slate-400 text-[10px] font-medium tracking-wide uppercase"
-            >
-              Full Name
-            </Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-              <Input
-                id="name"
-                type="text"
-                {...register('name')}
-                placeholder="John Doe"
-                className="pl-9 h-9 bg-slate-950/35 border-slate-800/80 text-white placeholder:text-slate-500/70 focus-visible:ring-1 focus-visible:ring-primary/45 focus-visible:border-primary/45 rounded-xl text-xs transition-colors duration-200"
-              />
-            </div>
-            {errors.name && (
-              <p className="mt-1 text-[10px] text-destructive">
-                {errors.name.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="email"
-              className="text-slate-400 text-[10px] font-medium tracking-wide uppercase"
-            >
-              Email Address
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-              <Input
-                id="email"
-                type="email"
-                {...register('email')}
-                placeholder="you@example.com"
-                className="pl-9 h-9 bg-slate-950/35 border-slate-800/80 text-white placeholder:text-slate-500/70 focus-visible:ring-1 focus-visible:ring-primary/45 focus-visible:border-primary/45 rounded-xl text-xs transition-colors duration-200"
-              />
-            </div>
-            {errors.email && (
-              <p className="mt-1 text-[10px] text-destructive">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label
               htmlFor="password"
               className="text-slate-400 text-[10px] font-medium tracking-wide uppercase"
             >
-              Password
+              New Password
             </Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
@@ -144,17 +95,15 @@ export function SignUpForm() {
             {isLoading ? (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
-                Creating account...
+                Updating Password...
               </>
             ) : (
-              'Sign Up'
+              'Reset Password'
             )}
           </Button>
 
-          <SocialAuthButtons isLoading={isLoading} onSignIn={handleSocialSignIn} />
-
           <div className="pt-4 mt-5 border-t border-slate-800/50 flex justify-center text-xs text-slate-400">
-            Already have an account?{' '}
+            Remembered your password?{' '}
             <Link
               href="/login"
               className="text-blue-400 hover:text-blue-300 font-semibold transition-all ml-1"

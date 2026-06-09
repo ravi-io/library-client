@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
-import { BookOpen, LogOut, LayoutDashboard, Heart, User } from 'lucide-react';
+import { BookOpen, LogOut, LayoutDashboard, Heart, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -25,6 +25,8 @@ export function Navbar({ wishlistCount }: NavbarProps) {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,14 +44,40 @@ export function Navbar({ wishlistCount }: NavbarProps) {
   }, []);
 
   const handleSignOut = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          toast.success('Signed out successfully');
-          router.refresh();
+    setIsSigningOut(true);
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success('Signed out successfully');
+            setMenuOpen(false);
+            setIsSigningOut(false);
+            router.push('/');
+            router.refresh();
+          },
+          onError: () => {
+            // If sign-out API fails (e.g. rate limited), manually clear the stale cookie
+            // so Next.js middleware won't block access to /login
+            document.cookie = 'better-auth.session_token=; Max-Age=0; path=/';
+            document.cookie = '__secure-better-auth.session_token=; Max-Age=0; path=/';
+            toast.success('Signed out successfully');
+            setMenuOpen(false);
+            setIsSigningOut(false);
+            router.push('/');
+            router.refresh();
+          },
         },
-      },
-    });
+      });
+    } catch {
+      // Network failure fallback — nuke cookies and redirect
+      document.cookie = 'better-auth.session_token=; Max-Age=0; path=/';
+      document.cookie = '__secure-better-auth.session_token=; Max-Age=0; path=/';
+      toast.success('Signed out');
+      setMenuOpen(false);
+      setIsSigningOut(false);
+      router.push('/');
+      router.refresh();
+    }
   };
 
   return (
@@ -105,7 +133,7 @@ export function Navbar({ wishlistCount }: NavbarProps) {
                 </span>
               )}
 
-              <DropdownMenu>
+              <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="w-10 h-10 rounded-full overflow-hidden border border-slate-800 hover:border-slate-600 cursor-pointer select-none transition-all duration-200 hover:scale-105 active:scale-[0.95] data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20 shadow-md shadow-black/30">
                     <AvatarFallback className="bg-slate-900 text-slate-200 text-sm font-bold rounded-full flex items-center justify-center">
@@ -153,11 +181,19 @@ export function Navbar({ wishlistCount }: NavbarProps) {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-slate-800/60 my-1" />
                   <DropdownMenuItem
-                    onClick={handleSignOut}
-                    className="cursor-pointer px-3 py-2 rounded-xl transition-all duration-200 text-red-400 hover:bg-red-500/10 hover:text-red-300 focus:bg-red-500/10 focus:text-red-300"
+                    disabled={isSigningOut}
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleSignOut();
+                    }}
+                    className="cursor-pointer px-3 py-2 rounded-xl transition-all duration-200 text-red-400 hover:bg-red-500/10 hover:text-red-300 focus:bg-red-500/10 focus:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <LogOut className="mr-2.5 h-4 w-4" />
-                    <span>Log out</span>
+                    {isSigningOut ? (
+                      <Loader2 className="mr-2.5 h-4 w-4 animate-spin" />
+                    ) : (
+                      <LogOut className="mr-2.5 h-4 w-4" />
+                    )}
+                    <span>{isSigningOut ? 'Logging out...' : 'Log out'}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
