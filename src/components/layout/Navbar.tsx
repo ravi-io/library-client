@@ -165,6 +165,15 @@ export function Navbar({ wishlistCount }: NavbarProps) {
                     asChild
                     className="cursor-pointer px-3 py-2 rounded-xl transition-all duration-200 hover:bg-slate-800/80 focus:bg-slate-800/80 text-slate-300 hover:text-white focus:text-white"
                   >
+                    <Link href="/profile" className="flex items-center w-full">
+                      <User className="mr-2.5 h-4 w-4 text-slate-400" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    asChild
+                    className="cursor-pointer px-3 py-2 rounded-xl transition-all duration-200 hover:bg-slate-800/80 focus:bg-slate-800/80 text-slate-300 hover:text-white focus:text-white"
+                  >
                     <Link href="/books" className="flex items-center w-full">
                       <LayoutDashboard className="mr-2.5 h-4 w-4 text-slate-400" />
                       <span>Dashboard</span>

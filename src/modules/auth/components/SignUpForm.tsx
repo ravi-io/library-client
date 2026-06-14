@@ -17,8 +17,15 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export function SignUpForm() {
-  const { register, handleSubmit, errors, isValid, error, isLoading, handleSocialSignIn } =
-    useSignUpForm();
+  const {
+    register,
+    handleSubmit,
+    errors,
+    isValid,
+    error,
+    isLoading,
+    handleSocialSignIn,
+  } = useSignUpForm();
 
   return (
     <Card className="w-full max-w-[380px] bg-slate-950/40 backdrop-blur-xl border border-slate-800/80 shadow-2xl rounded-2xl p-6 sm:p-7 gap-0">
@@ -27,14 +34,14 @@ export function SignUpForm() {
           Create Account
         </CardTitle>
         <CardDescription className="text-xs text-slate-400">
-          Get started with the Library Management System
+          Get started with your library access
         </CardDescription>
       </CardHeader>
 
       <CardContent className="p-0">
         {error && (
-          <div className="flex items-center gap-3 p-3 mb-4 text-xs rounded-xl bg-destructive/10 border border-destructive/20 text-destructive-foreground">
-            <ShieldAlert className="w-4.5 h-4.5 shrink-0 text-destructive" />
+          <div className="flex items-center gap-3 p-3 mb-4 text-xs rounded-xl bg-red-500/10 border border-red-500/25 text-red-200">
+            <ShieldAlert className="w-4.5 h-4.5 shrink-0 text-red-400" />
             <span>{error}</span>
           </div>
         )}

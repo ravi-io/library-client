@@ -30,7 +30,7 @@ export function useLoginForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const { error: authError } = await authClient.signIn.email({
+      const { data: resData, error: authError } = await authClient.signIn.email({
         email: data.email,
         password: data.password,
       });
@@ -41,7 +41,23 @@ export function useLoginForm() {
         toast.error(msg);
       } else {
         toast.success('Logged in successfully');
-        router.push('/');
+        
+        const user = resData?.user;
+        const hasCompletedOnboarding =
+          user &&
+          !!user.university &&
+          !!user.department &&
+          !!user.course &&
+          user.idCardUrls &&
+          user.idCardUrls.length >= 2 &&
+          !!user.idCardUrls[0] &&
+          !!user.idCardUrls[1];
+
+        if (hasCompletedOnboarding) {
+          router.push('/');
+        } else {
+          router.push('/onboarding');
+        }
         router.refresh();
       }
     } catch (err) {
@@ -88,25 +104,8 @@ export function useLoginForm() {
     }
   };
 
-  const handleSocialSignIn = async (provider: 'google' | 'github') => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { error: authError } = await authClient.signIn.social({
-        provider,
-        callbackURL: '/',
-      });
-      if (authError) {
-        setError(authError.message || `Failed to sign in with ${provider}`);
-        toast.error(authError.message || `Failed to sign in with ${provider}`);
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Something went wrong';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSocialSignIn = async (_provider: 'google' | 'github') => {
+    toast.info('This feature is coming soon, currently not available.');
   };
 
   return {

@@ -38,7 +38,7 @@ export function useSignUpForm() {
         toast.error(msg);
       } else {
         toast.success('Account created successfully!');
-        router.push('/');
+        router.push('/onboarding');
         router.refresh();
       }
     } catch (err) {
@@ -53,25 +53,8 @@ export function useSignUpForm() {
     }
   };
 
-  const handleSocialSignIn = async (provider: 'google' | 'github') => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { error: authError } = await authClient.signIn.social({
-        provider,
-        callbackURL: '/',
-      });
-      if (authError) {
-        setError(authError.message || `Failed to sign up with ${provider}`);
-        toast.error(authError.message || `Failed to sign up with ${provider}`);
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Something went wrong';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSocialSignIn = async (_provider: 'google' | 'github') => {
+    toast.info('This feature is coming soon, currently not available.');
   };
 
   return {

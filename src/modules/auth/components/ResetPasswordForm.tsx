@@ -32,8 +32,8 @@ export function ResetPasswordForm() {
 
       <CardContent className="p-0">
         {error && (
-          <div className="flex items-center gap-3 p-3 mb-4 text-xs rounded-xl bg-destructive/10 border border-destructive/20 text-destructive-foreground">
-            <ShieldAlert className="w-4.5 h-4.5 shrink-0 text-destructive" />
+          <div className="flex items-center gap-3 p-3 mb-4 text-xs rounded-xl bg-red-500/10 border border-red-500/25 text-red-200">
+            <ShieldAlert className="w-4.5 h-4.5 shrink-0 text-red-400" />
             <span>{error}</span>
           </div>
         )}
